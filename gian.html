@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"/>
+<title>Ra về hả mở á nhee mở trước là phỏng tay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:#111;overflow:hidden;font-family:'Nunito','Be Vietnam Pro',system-ui,sans-serif;font-weight:900;color:#000}
+
+  /* Khung điện thoại: chiếm hết màn hình điện thoại, trên máy tính thì là 1 cột giữa tỉ lệ 4:5 */
+  #frame{position:fixed;left:50%;top:0;transform:translateX(-50%);overflow:hidden;background:#000}
+
+  .bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity .8s ease}
+  #bg1{background-image:url(assets/gian/bg1.jpg)}
+  #bg2{background-image:url(assets/gian/bg2.jpg);opacity:0}
+
+  /* Sân khấu thiết kế 1080x1350, neo ở đáy khung, tự scale theo chiều rộng */
+  #stage{position:absolute;left:0;bottom:0;width:1080px;height:1350px;transform-origin:left bottom}
+  .abs{position:absolute}
+
+  /* ---------- MÀN 1 ---------- */
+  #scene1{position:absolute;inset:0;transition:opacity .6s ease}
+  #openBtn{position:absolute;left:322px;top:905px;width:520px;height:116px;border:0;border-radius:60px;cursor:pointer;
+    background:linear-gradient(#ff3b30,#d91d17);color:#fff;font:900 42px 'Nunito',sans-serif;white-space:nowrap;
+    box-shadow:0 8px 0 #9f130f,0 14px 24px rgba(0,0,0,.35);animation:pulse 1.4s ease-in-out infinite}
+  #openBtn:active{transform:translateY(6px);box-shadow:0 2px 0 #9f130f}
+  @keyframes pulse{50%{transform:scale(1.06)}}
+
+  /* ---------- MÀN 2 ---------- */
+  #scene2{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .8s ease}
+  #scene2.on{opacity:1;pointer-events:auto}
+
+  .sprite{position:absolute;display:block}
+  #hands{left:193px;bottom:0;width:706px;height:617px;transform:translateY(360px);opacity:0}
+  #hands.up{opacity:1;transform:translateY(0);transition:transform 1.8s cubic-bezier(.2,.8,.25,1),opacity .4s}
+
+  /* gián 1: đi từ trái vào */
+  #g1w{left:322px;bottom:100px;width:260px;height:590px;transform:translateX(-700px) scale(.72);transform-origin:50% 100%}
+  #g1w.walk{transform:translateX(0) scale(1);transition:transform 3.6s cubic-bezier(.3,.6,.4,1)}
+  #g1w img{width:100%;height:100%;transform-origin:50% 100%}
+  #g1w.walking img{animation:bob .5s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-18px) rotate(3deg)}}
+  #g1w.idle img{animation:breathe 2.4s ease-in-out infinite}
+  @keyframes breathe{50%{transform:scaleY(1.025)}}
+
+  #g2{left:365px;bottom:90px;width:493px;height:695px;opacity:0;transition:opacity .35s}
+  #g3{left:363px;bottom:138px;width:373px;height:817px;opacity:0;transform-origin:46% 43%}
+
+  /* ---------- HỘP THOẠI ---------- */
+  .bubble{position:absolute;left:450px;top:418px;width:620px;height:272px;background:url(assets/gian/chat.png) center/100% 100% no-repeat;
+    opacity:0;transform:scale(.6) translateY(30px);transform-origin:6% 100%;transition:opacity .25s,transform .35s cubic-bezier(.3,1.6,.5,1);pointer-events:none}
+  .bubble.show{opacity:1;transform:scale(1) translateY(0)}
+  .bubble span{position:absolute;left:11%;right:7%;top:4%;height:80%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:56px;line-height:1.25}
+
+  #kissText{position:absolute;right:40px;top:250px;text-align:right;font-size:56px;white-space:nowrap;
+    text-shadow:0 0 8px #fff,0 0 8px #fff;opacity:0;transition:opacity .4s}
+  #kissText.show{opacity:1;animation:wob .6s ease-in-out infinite alternate}
+  @keyframes wob{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+
+  /* ---------- HỘP CÂU HỎI ---------- */
+  #ask{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .3s}
+  #ask.show{opacity:1;pointer-events:auto}
+  #askBox{position:absolute;left:210px;top:258px;width:820px;height:215px;background:#fff;border-radius:44px;border:5px solid #111;
+    box-shadow:-20px 18px 0 #111;display:flex;align-items:center;justify-content:center;text-align:center;font-size:62px;line-height:1.3;padding:0 40px}
+  #askBox.shake{animation:shake .45s}
+  #askBox.small{font-size:50px;line-height:1.25}
+  @keyframes shake{20%{transform:translateX(-14px)}40%{transform:translateX(14px)}60%{transform:translateX(-9px)}80%{transform:translateX(9px)}}
+  .opt{position:absolute;top:512px;height:146px;border:0;border-radius:73px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:22px;
+    font:900 92px 'Nunito',sans-serif;letter-spacing:-2px;transition:transform .12s}
+  .opt:active{transform:translateY(8px)}
+  .opt i{width:90px;height:90px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:58px;color:#fff;letter-spacing:0;line-height:1}
+  #noBtn{left:268px;width:340px;background:#fddddd;color:#ef4b4b;border-bottom:12px solid #f0a3a3}
+  #noBtn i{background:#ef5a4f}
+  #yesBtn{left:653px;width:318px;background:#e4f7ec;color:#4ec68a;border-bottom:12px solid #bfe8d1}
+  #yesBtn i{background:#6fd69b}
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="bg" id="bg1"></div>
+  <div class="bg" id="bg2"></div>
+
+  <div id="stage">
+    <!-- MÀN 1 -->
+    <div id="scene1">
+      <button id="openBtn" type="button">ẤN VÀO ĐỂ MỞ CỬA</button>
+    </div>
+
+    <!-- MÀN 2 -->
+    <div id="scene2">
+      <img id="hands" class="sprite" src="assets/gian/hands.png" alt=""/>
+      <div id="g1w" class="sprite"><img src="assets/gian/gian1.png" alt="gián 1"/></div>
+      <img id="g2" class="sprite" src="assets/gian/gian2.png" alt="gián 2"/>
+      <img id="g3" class="sprite" src="assets/gian/gian3.png" alt="gián 3"/>
+
+      <div id="say" class="bubble"><span id="sayText"></span></div>
+      <div id="kissText">moaz, mấy người thơm quáa</div>
+
+      <div id="ask">
+        <div id="askBox"><span id="askText">bạn có muốn ẵm baby gián LÂM?</span></div>
+        <button id="noBtn" class="opt" type="button"><i>✕</i>NO</button>
+        <button id="yesBtn" class="opt" type="button"><i>✓</i>YES</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="sndOpen" src="assets/gian/mo_cua.mp3" preload="auto"></audio>
+<audio id="sndKiss" src="assets/gian/hon.mp3" preload="auto"></audio>
+
+<script>
+(function(){
+  var frame=document.getElementById('frame'), stage=document.getElementById('stage');
+  function fit(){
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var fw=Math.min(vw, vh*0.8);          // điện thoại: full ngang; máy tính: cột 4:5 ở giữa
+    frame.style.width=fw+'px'; frame.style.height=vh+'px';
+    stage.style.transform='scale('+(fw/1080)+')';
+  }
+  fit(); window.addEventListener('resize',fit); window.addEventListener('orientationchange',fit);
+
+  var $=function(id){return document.getElementById(id)};
+  var wait=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+
+  var sndOpen=$('sndOpen'), sndKiss=$('sndKiss'), g1w=$('g1w'), g2=$('g2'), g3=$('g3'), hands=$('hands');
+  var say=$('say'), sayText=$('sayText'), ask=$('ask'), askBox=$('askBox'), askText=$('askText');
+
+  function speak(t,ms){
+    sayText.textContent=t; say.classList.add('show');
+    return wait(ms).then(function(){ say.classList.remove('show'); return wait(350); });
+  }
+
+  // ---- sound hôn: mở khoá sẵn để lúc gián 3 hôn thì tự phát được ----
+  function unlockKiss(){
+    try{
+      sndKiss.muted=true;
+      var pr=sndKiss.play();
+      var back=function(){ sndKiss.pause(); sndKiss.currentTime=0; sndKiss.muted=false; };
+      if(pr&&pr.then) pr.then(back).catch(function(){ sndKiss.muted=false; }); else back();
+    }catch(e){}
+  }
+
+  // Mốc thời gian (giây) của từng cái hôn trong hon.mp3: [bắt đầu chu môi, ĐỈNH (tiếng chụt), thả ra]
+  var KISSES=[[0.30,0.68,0.86],[1.35,1.72,1.92]];
+  var ZOOM=2.25;
+  function ease(t){ return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
+  function scaleAt(t){
+    for(var i=0;i<KISSES.length;i++){
+      var k=KISSES[i];
+      if(t>=k[0]&&t<k[1]) return 1+(ZOOM-1)*ease((t-k[0])/(k[1]-k[0]));
+      if(t>=k[1]&&t<k[2]) return ZOOM-(ZOOM-1)*ease((t-k[1])/(k[2]-k[1]));
+    }
+    return 1;
+  }
+  // hon.mp3 có 2 cái hôn -> phát 3 lượt (2 + 2 + 1) = 5 cái hôn liên tục đều nhịp
+  var ROUNDS=3, ROUND_END=2.0, LAST_END=0.95;
+  function kissSequence(){
+    var round=0, r0=performance.now();
+    function startRound(){
+      r0=performance.now(); sndKiss.currentTime=0;
+      var pr=sndKiss.play(); if(pr&&pr.catch) pr.catch(function(){});
+    }
+    function loop(){
+      // nếu trình duyệt chặn âm thanh thì vẫn chạy hình theo đồng hồ để không bị đứng
+      var t=sndKiss.paused?(performance.now()-r0)/1000:sndKiss.currentTime;
+      var last=(round===ROUNDS-1);
+      if(last ? t>=LAST_END : t>=ROUND_END){
+        if(last){ sndKiss.pause(); g3.style.transform='scale(1)'; return; }
+        round++; startRound(); t=0;
+      }
+      g3.style.transform='scale('+scaleAt(t).toFixed(4)+')';
+      requestAnimationFrame(loop);
+    }
+    startRound(); loop();
+  }
+
+  // ---- bấm nút mở cửa ----
+  $('openBtn').addEventListener('click',function(){
+    try{ sndOpen.currentTime=0; sndOpen.play(); }catch(e){}
+    unlockKiss();
+    $('scene1').style.opacity=0; $('scene1').style.pointerEvents='none';
+    $('bg2').style.opacity=1;
+    setTimeout(function(){ $('bg1').style.opacity=0; },800);
+    $('scene2').classList.add('on');
+    intro();
+  },{once:true});
+
+  function intro(){
+    wait(600).then(function(){
+      g1w.classList.add('walk','walking');
+      return wait(3700);
+    }).then(function(){
+      g1w.classList.remove('walking'); g1w.classList.add('idle');
+      return wait(300);
+    }).then(function(){ return speak('Ý ơi Ý học mệt honggg',2300); })
+      .then(function(){ return speak('Lâm nhớ Ý quá trờii',2300); })
+      .then(function(){ ask.classList.add('show'); });
+  }
+
+  // ---- NO ----
+  $('noBtn').addEventListener('click',function(){
+    askText.textContent='hong được đâu, phải ẵm cơ, hong được màaa';
+    askBox.classList.add('small');
+    askBox.classList.remove('shake'); void askBox.offsetWidth; askBox.classList.add('shake');
+  });
+
+  // ---- YES ----
+  $('yesBtn').addEventListener('click',function(){
+    ask.classList.remove('show');
+    g1w.style.transition='opacity .3s'; g1w.style.opacity=0;
+    g2.style.opacity=1;
+    hands.classList.add('up');
+    wait(2900).then(function(){          // gián 2 đã nằm trên tay -> đổi sang gián 3
+      g2.style.opacity=0; g3.style.opacity=1;
+      return wait(700);
+    }).then(function(){
+      $('kissText').classList.add('show');
+      kissSequence();
+    });
+  });
+})();
+</script>
+</body>
+</html>
